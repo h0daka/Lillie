@@ -55,7 +55,6 @@ def get_readable_time(seconds: int) -> str:
 PM_START_TEXT = """
 *Hi {}, My Name Is {}
 I Am A Pokègirl Themed advance Group Management Bot From Pokemon!! 
-Click The Help Buttons Below To Know My Abilities.*
 
 
 • *Uptime:* `{}`
@@ -215,7 +214,7 @@ def start(update: Update, context: CallbackContext):
             first_name = update.effective_user.first_name
             update.effective_message.reply_photo(
                 TOKISAKI_IMG,
-                PM_START_TEXT.format(
+                PM_START_TEXT.format
                     escape_markdown(first_name),
                     escape_markdown(context.bot.first_name),
                     escape_markdown(uptime),
