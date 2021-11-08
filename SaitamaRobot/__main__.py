@@ -4,15 +4,16 @@ import re
 from sys import argv
 from typing import Optional
 
+import SaitamaRobot.modules.sql.users_sql as sql
+
 from SaitamaRobot import (ALLOW_EXCL, CERT_PATH, DONATION_LINK, LOGGER,
                           OWNER_ID, PORT, SUPPORT_CHAT, TOKEN, URL, WEBHOOK,
-                          SUPPORT_CHAT, dispatcher, StartTime, telethn, updater,pbot)
+                          SUPPORT_CHAT, dispatcher, StartTime, telethn, updater)
 # needed to dynamically load modules
 # NOTE: Module order is not guaranteed, specify that in the config file!
 from SaitamaRobot.modules import ALL_MODULES
 from SaitamaRobot.modules.helper_funcs.chat_status import is_user_admin
 from SaitamaRobot.modules.helper_funcs.misc import paginate_modules
-import SaitamaRobot.modules.sql.users_sql as sql
 from telegram import (InlineKeyboardButton, InlineKeyboardMarkup, ParseMode,
                       Update)
 from telegram.error import (BadRequest, ChatMigrated, NetworkError,
@@ -52,29 +53,59 @@ def get_readable_time(seconds: int) -> str:
 
 
 PM_START_TEXT = """
-*Eureka! {}, myself {}!* 
-*An Anime themed group management bot from* [Steins;Gate](https://anilist.co/anime/9253)!!
+*Hi {}, My Name Is {}
+I Am A Pokègirl Themed advance Group Management Bot From Pokemon!! 
+Click The Help Buttons Below To Know My Abilities.*
+
 
 • *Uptime:* `{}`
-• `{}` *users, across* `{}` *chats.*
+• `{}` *Users, Across* `{}` *Chats*
 """
 
-HELP_STRINGS = """
-*{} comes with:*
-*AI Chatbot*, *Anime*, *Music*, *Notes*, *Filters*, *NSFW* *and more!*
+buttons = [
+    [
+                        InlineKeyboardButton(
+                            text="Add Me to your groups🎉",
+                            url="t.me/Lillie_Robot?startgroup=true"),
+                    ],
+                   [
+                       InlineKeyboardButton(text="Help🔐", url= "https://t.me/Lillie_robot?start=help"),
+                       InlineKeyboardButton(text="Network🔰", url="https://t.me/PegasusXteam"),
+                       InlineKeyboardButton(text="Logs🔔", url="t.me/pegasusLogs"),
+                     ],
+                    [                  
+                       InlineKeyboardButton(
+                             text="Support🚑",
+                             url=f"https://t.me/PegasusSupportOficial"),
+                       InlineKeyboardButton(
+                             text="Updates🛰️",
+                             url="https://t.me/PegasusUpdates")
+                     ], 
+    ]
 
-🎛 *All commands can either be used with* `/` *or* `!`.
-🎛 *Reach out for support:* @KurisuSupport [.](https://telegra.ph/file/2291942331f135e3292ee.png)
+                    
+HELP_STRINGS = """
+*{} is here! 
+I Use My Powers To Help Admins To Manage Their Groups! 
+*Main* commands available :
+ • /help: PM's you this message.
+ • /help <module name>: PM's you info about that module.
+ • /settings:
+   • in PM: will send you your settings for all supported modules.
+   • in a group: will redirect you to pm, with all that chat's settings.
+For all command use /* [or](https://telegra.ph/file/39dc590cffa5f050582f5.jpg) *!*
 """.format(
     dispatcher.bot.first_name, ""
-    if not ALLOW_EXCL else "\nAll commands can either be used with / or !.\n")
+    if not ALLOW_EXCL else "\nAll commands can either be used with / or !.\nKindly use ! for commands if / is not working\n")
 
-KURISU_IMG = "https://telegra.ph/file/6152bf2f73ca8ea30772a.png"
-KURISUIMGSTART = "https://telegra.ph/file/bd01a439fefb53170b36f.gif"
+TOKISAKI_IMG = "https://telegra.ph/file/108eb689299cf4d980548.jpg"
+
+KURUMI_IMG = "https://telegra.ph/file/74eba0d6735bed0681599.mp4"
+
+SUGISHA = "https://telegra.ph/file/e72a8781c24b4329c807c.jpg"
 
 DONATE_STRING = """Heya, glad to hear you want to donate!
-You can donate to the original writer of the Base code, Paul
-There are two ways of supporting him; [PayPal](paypal.me/PaulSonOfLars), or [Monzo](monzo.me/paulnionvestergaardlarsen)."""
+Click here to donate in [Paypal](https://www.paypal.me/zameeljaz)"""
 
 IMPORTED = {}
 MIGRATEABLE = []
@@ -183,50 +214,38 @@ def start(update: Update, context: CallbackContext):
         else:
             first_name = update.effective_user.first_name
             update.effective_message.reply_photo(
-                KURISU_IMG,
-                caption=PM_START_TEXT.format(
+                TOKISAKI_IMG,
+                PM_START_TEXT.format(
                     escape_markdown(first_name),
                     escape_markdown(context.bot.first_name),
                     escape_markdown(uptime),
                     sql.num_users(),
-                    sql.num_chats()),
+                    sql.num_chats()),                        
+                reply_markup=InlineKeyboardMarkup(buttons),
                 parse_mode=ParseMode.MARKDOWN,
-                disable_web_page_preview=True,
-                reply_markup=InlineKeyboardMarkup(
-                    [[
-                        InlineKeyboardButton(
-                            text="➕ Add Kurisu To Your Group",
-                            url="t.me/{}?startgroup=true".format(
-                                context.bot.username))
-                    ],
-                     [
-                         InlineKeyboardButton(
-                             text="⚙️ Support",
-                             url=f"https://t.me/{SUPPORT_CHAT}"),
-                         InlineKeyboardButton(
-                             text="🎉 Updates",
-                             url="https://t.me/steinsupdates"),
-                         InlineKeyboardButton(
-                             text="🗃 Guide",
-                             url="https://t.me/Steinsupdates/7"),
-              
-                    ],
-                     [
-                        InlineKeyboardButton(
-                             text="Anime Chat",
-                             url="https://t.me/ias_chats"),                    
-                        InlineKeyboardButton(
-                             text="Help & Commands",
-                             url="https://t.me/Kurisu_Makise_Robot?start=help"),      
-                    ]]))
+                timeout=60,
+                   )
     else:
         update.effective_message.reply_video(
-                KURISUIMGSTART)
-        update.effective_message.reply_text(
-            "I'm awake already!\n<b>Haven't slept since:</b> <code>{}</code>"
-            .format(uptime),
-            parse_mode=ParseMode.HTML)
-
+                KURUMI_IMG, caption= "<code>Lillie is here for you❣️ \nI am Awake Since</code>: <code>{}</code>".format(
+                uptime
+            ),
+            
+            parse_mode=ParseMode.HTML,
+            reply_markup=InlineKeyboardMarkup(
+                [
+                  [
+                  InlineKeyboardButton(text="📚 Sᴜᴘᴘᴏʀᴛ", url="https://t.me/PegasusSupportOficial")
+                  ],
+                  [
+                  InlineKeyboardButton(text="💬 Uᴘᴅᴀᴛᴇs", url="https://t.me/pegasusupdates")
+                  ],
+                  [
+                  InlineKeyboardButton(text="❓ Hᴇʟᴘ", url="https://t.me/Lillie_robot?start=help")
+                  ]
+                ]
+            ),
+        )
 
 # for test purposes
 def error_callback(update: Update, context: CallbackContext):
@@ -314,6 +333,50 @@ def help_button(update, context):
 
 
 @run_async
+def cutiepii_callback_data(update, context):
+    query = update.callback_query
+    uptime = get_readable_time((time.time() - StartTime))
+    if query.data == "cutiepii_":
+        query.message.edit_text(
+            text="""CallBackQueriesData Here""",
+            parse_mode=ParseMode.MARKDOWN,
+            disable_web_page_preview=True,
+            reply_markup=InlineKeyboardMarkup(
+                [
+                 [
+                    InlineKeyboardButton(text="[► Back ◄]", callback_data="cutiepii_back")
+                 ]
+                ]
+            ),
+        )
+    elif query.data == "cutiepii_back":
+        first_name = update.effective_user.first_name
+        query.message.delete(
+                PM_START_TEXT.format(
+                    escape_markdown(context.bot.first_name),
+                    escape_markdown(first_name),
+                    escape_markdown(uptime),
+                    sql.num_users(),
+                    sql.num_chats()),
+                reply_markup=InlineKeyboardMarkup(buttons),
+                parse_mode=ParseMode.MARKDOWN,
+                timeout=60,
+                disable_web_page_preview=False,
+        )
+            first_name = update.effective_user.first_name
+            update.effective_message.reply_text(
+                PM_START_TEXT.format(
+                    escape_markdown(context.bot.first_name),
+                    escape_markdown(first_name),
+                    escape_markdown(uptime),
+                    sql.num_users(),
+                    sql.num_chats()),                        
+                reply_markup=InlineKeyboardMarkup(buttons),
+                parse_mode=ParseMode.MARKDOWN,
+                timeout=60,
+            )
+
+@run_async
 def get_help(update: Update, context: CallbackContext):
     chat = update.effective_chat  # type: Optional[Chat]
     args = update.effective_message.text.split(None, 1)
@@ -331,13 +394,23 @@ def get_help(update: Update, context: CallbackContext):
                             context.bot.username, module))
                 ]]))
             return
-        update.effective_message.reply_text(
-            "Contact me in PM to get the list of possible commands.",
-            reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton(
-                    text="Help",
-                    url="t.me/{}?start=help".format(context.bot.username))
-            ]]))
+
+        update.effective_message.reply_photo(
+            SUGISHA, caption= "Contact me in PM to get the list of possible commands.",
+            reply_markup=InlineKeyboardMarkup(
+                [
+                  [
+                  InlineKeyboardButton(text="❓ Hᴇʟᴘ", url="https://t.me/Lillie_robot?start=help")
+                  ],
+                  [
+                  InlineKeyboardButton(text="📚 Sᴜᴘᴘᴏʀᴛ", url="https://t.me/PegasusSupportOficial")
+                  ],
+                  [
+                  InlineKeyboardButton(text="💬 Uᴘᴅᴀᴛᴇs", url="https://t.me/pegasusupdates")
+                  ]
+                ]
+            ),
+        )
         return
 
     elif len(args) >= 2 and any(args[1].lower() == x for x in HELPABLE):
@@ -541,7 +614,7 @@ def main():
 
     if SUPPORT_CHAT is not None and isinstance(SUPPORT_CHAT, str):
         try:
-            dispatcher.bot.sendMessage(f"@{SUPPORT_CHAT}", "[I am now online!](https://telegra.ph/file/26aeb38f38eb8c819e423.mp4)", parse_mode=ParseMode.MARKDOWN)
+            dispatcher.bot.sendMessage(f"@{SUPPORT_CHAT}", "[I am in online](https://telegra.ph/file/48cc8137a0d34a3c57320.mp4)", parse_mode=ParseMode.MARKDOWN) 
         except Unauthorized:
             LOGGER.warning(
                 "Bot isnt able to send message to support_chat, go and check!")
@@ -585,7 +658,7 @@ def main():
             updater.bot.set_webhook(url=URL + TOKEN)
 
     else:
-        LOGGER.info("Kurisu Makise is deployed sucessfully...")
+        LOGGER.info("Using long polling.")
         updater.start_polling(timeout=15, read_latency=4, clean=True)
 
     if len(argv) not in (1, 3, 4):
@@ -599,5 +672,4 @@ def main():
 if __name__ == '__main__':
     LOGGER.info("Successfully loaded modules: " + str(ALL_MODULES))
     telethn.start(bot_token=TOKEN)
-    pbot.start()
     main()
